@@ -23,9 +23,7 @@ $ch->exchange_declare($exchange, 'topic', false, true, false);
 $ch->queue_bind($queue, $exchange, $routing_key);
 
 $consumer = function($msg) use ($ch, $consumer_tag){
-  echo "\n--------\n";
-  echo $msg->body;
-  echo "\n--------\n";
+  exec(sprintf('echo "%s" >> /tmp/%s.log' , $msg->body, $consumer_tag));
 
   $ch->basic_ack($msg->delivery_info['delivery_tag']);
 };
