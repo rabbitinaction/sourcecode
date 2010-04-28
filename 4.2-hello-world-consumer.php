@@ -1,5 +1,14 @@
 #!/usr/bin/env php
 <?php
+###################################################
+# RabbitMQ in Action
+# Chapter 4.2.x - Hello World Consumer
+# 
+# Requires: php-amqp http://github.com/bkw/php-amqp
+# 
+# Author: Alvaro Videla
+# (C)2010
+###################################################
 
 require_once('../amqp.inc');
 
