@@ -37,6 +37,7 @@ IM_SERVER = "talk.google.com"
 IM_PORT = 5223
 IM_USER = "rabbitinaction@gmail.com"
 IM_PASS = "1rabbit1"
+IM_RECIPS = ["williamsjj@digitar.com", "jasonjwwilliams@gmail.com"]
 
 # Notify Processors
 def twitter_notify(msg):
@@ -84,7 +85,7 @@ def im_notify(msg):
         for recipient in IM_RECIPS:
             xmpp_message = xmpp.Message(recipient, str(message))
             xmpp_message.setAttr('type', 'chat')
-            xmpp_client.send(message)
+            xmpp_client.send(xmpp_message)
     
         print "Sent alert via IM! Alert Text: %s Recipients: %s" % (str(message), str(IM_RECIPS))
     except Exception, e:
