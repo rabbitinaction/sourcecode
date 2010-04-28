@@ -37,7 +37,7 @@ IM_SERVER = "talk.google.com"
 IM_PORT = 5223
 IM_USER = "rabbitinaction@gmail.com"
 IM_PASS = "1rabbit1"
-IM_RECIPS = ["williamsjj@digitar.com", "jasonjwwilliams@gmail.com"]
+IM_RECIPS = ["williamsjj@im.digitar.com", "jasonjwwilliams@gmail.com"]
 
 # Notify Processors
 def twitter_notify(msg):
@@ -79,7 +79,7 @@ def im_notify(msg):
     try:
         xmpp_client = xmpp.Client(IM_USER.split("@")[1], debug=[])
         xmpp_client.connect(server=(IM_SERVER, IM_PORT))
-        xmpp_client.auth(IM_USER.split("@")[0], IM_PASS, "rabbitAlerProducer")
+        xmpp_client.auth(IM_USER.split("@")[0], IM_PASS, "rabbitAlertProducer")
         xmpp_client.sendInitPresence()
     
         for recipient in IM_RECIPS:
