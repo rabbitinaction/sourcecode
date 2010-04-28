@@ -3,13 +3,13 @@
 # Chapter 4.3.3 - Alerting Server Consumer
 # 
 # Requires: py-amqplib >= 0.5
-#           pyxmpp >= 1.1.1
+#           xmppy >= 0.5
 # 
 # Author: Jason J. W. Williams
 # (C)2010
 ###############################################
 import socket, struct, sys, json, smtplib
-import pyxmpp
+import xmpp
 from amqplib import client_0_8 as amqp
 
 # Broker settings
@@ -35,10 +35,8 @@ EMAIL_RECIPS = ["williamsjj@digitar.com",]
 # IM (XMPP) settings
 IM_SERVER = "talk.google.com"
 IM_PORT = 5223
-IM_USER = "joe"
-IM_PASS = "test"
-IM_RECIPS = ["jasonjwwilliams@gmail.com", "williamsjj@digitar.com"]
-
+IM_USER = "rabbitinaction@gmail.com"
+IM_PASS = "1rabbit1"
 
 # Notify Processors
 def twitter_notify(msg):
@@ -77,19 +75,22 @@ def im_notify(msg):
         return
 
     # Transmit message to XMPP server
-    #try:
-    xmpp_id = pyxmpp.all.JID(IM_USER)
-    if not xmpp_id.resource:
-        xmpp_id = pyxmpp.all.JID(xmpp_id.node, xmpp_id.domain, "rabbitAlertProducer")
+    try:
+        xmpp_client = xmpp.Client(IM_USER.split("@")[1], debug=[])
+        xmpp_client.connect(server=(IM_SERVER, IM_PORT))
+        xmpp_client.auth(IM_USER.split("@")[0], IM_PASS, "rabbitAlerProducer")
+        xmpp_client.sendInitPresence()
     
-    tls = pyxmpp.streamtls.TLSSettings(require=True, verify_peer=False)
+        for recipient in IM_RECIPS:
+            xmpp_message = xmpp.Message(recipient, str(message))
+            xmpp_message.setAttr('type', 'chat')
+            xmpp_client.send(message)
     
-    for recipient in IM_RECIPS:
-        pyxmpp.jabber.simple.send_message(xmpp_id, IM_PASS, pyxmpp.jid.JID(recipient), str(message), "Web Alert!")
-    #except Exception, e:
-    #    print "Problem transmitting to IM server. %s" % str(e)
-    #    channel.basic_ack(msg.delivery_tag)
-    #    return
+        print "Sent alert via IM! Alert Text: %s Recipients: %s" % (str(message), str(IM_RECIPS))
+    except Exception, e:
+        print "Problem transmitting to IM server. %s" % str(e)
+        channel.basic_ack(msg.delivery_tag)
+        return
 
     # Acknowledge the message
     channel.basic_ack(msg.delivery_tag)
