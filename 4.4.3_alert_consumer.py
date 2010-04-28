@@ -5,7 +5,7 @@
 # Author: Jason J. W. Williams
 # (C)2010
 ###############################################
-import socket, struct, sys, json
+import socket, struct, sys, json, smtplib
 from amqplib import client_0_8 as amqp
 
 # Broker settings
@@ -22,18 +22,18 @@ TWITTER_USER = "joetwit"
 TWITTER_PASS = "joepass"
 
 # Email (SMTP) settings
-EMAIL_SERVER = "localhost"
+EMAIL_SERVER = "204.134.222.177"
 EMAIL_PORT = 25
 EMAIL_FROM = "alerts@mycorp.tld"
 EMAIL_SUBJECT = "Web Process Alert!"
-EMAIL_RECIPS = ("test@user.com", "user2@mycomp.tld")
+EMAIL_RECIPS = ["williamsjj@digitar.com",]
 
 # IM (XMPP) settings
 IM_SERVER = "localhost"
 IM_PORT = 5222
 IM_USER = "joe"
 IM_PASS = "test"
-IM_RECIPS = ("test@test.com", "autobot@mycomp.tld")
+IM_RECIPS = ["test@test.com", "autobot@mycomp.tld"]
 
 
 # Notify Processors
@@ -76,7 +76,7 @@ def im_notify(msg):
     try:
         print "Sending to IM!"
     except Exception, e:
-        print "Problem transmitting to Twitter. %s" % str(e)
+        print "Problem transmitting to IM server. %s" % str(e)
         channel.basic_ack(msg.delivery_tag)
         return
 
@@ -97,9 +97,16 @@ def email_notify(msg):
 
     # Transmit e-mail to SMTP server
     try:
-        print "Sending to Email!"
+        headers = "From: %s\r\nTo: \r\nDate: \r\nSubject: %s\r\n\r\n" % (EMAIL_FROM, EMAIL_SUBJECT)
+        
+        smtp_server = smtplib.SMTP()
+        smtp_server.connect(EMAIL_SERVER, EMAIL_PORT)
+        smtp_server.sendmail(EMAIL_FROM, EMAIL_RECIPS, headers + str(message))
+        smtp_server.close()
+        
+        print "Sent alert via e-mail! Alert Text: %s  Recipients: %s" % (str(message), str(EMAIL_RECIPS))
     except Exception, e:
-        print "Problem transmitting to Twitter. %s" % str(e)
+        print "Problem transmitting to e-mail server. %s" % str(e)
         channel.basic_ack(msg.delivery_tag)
         return
 
