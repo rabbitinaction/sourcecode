@@ -2,10 +2,14 @@
 # RabbitMQ in Action
 # Chapter 4.3.3 - Alerting Server Consumer
 # 
+# Requires: py-amqplib >= 0.5
+#           pyxmpp >= 1.1.1
+# 
 # Author: Jason J. W. Williams
 # (C)2010
 ###############################################
 import socket, struct, sys, json, smtplib
+import pyxmpp
 from amqplib import client_0_8 as amqp
 
 # Broker settings
@@ -29,11 +33,11 @@ EMAIL_SUBJECT = "Web Process Alert!"
 EMAIL_RECIPS = ["williamsjj@digitar.com",]
 
 # IM (XMPP) settings
-IM_SERVER = "localhost"
-IM_PORT = 5222
+IM_SERVER = "talk.google.com"
+IM_PORT = 5223
 IM_USER = "joe"
 IM_PASS = "test"
-IM_RECIPS = ["test@test.com", "autobot@mycomp.tld"]
+IM_RECIPS = ["jasonjwwilliams@gmail.com", "williamsjj@digitar.com"]
 
 
 # Notify Processors
@@ -73,12 +77,19 @@ def im_notify(msg):
         return
 
     # Transmit message to XMPP server
-    try:
-        print "Sending to IM!"
-    except Exception, e:
-        print "Problem transmitting to IM server. %s" % str(e)
-        channel.basic_ack(msg.delivery_tag)
-        return
+    #try:
+    xmpp_id = pyxmpp.all.JID(IM_USER)
+    if not xmpp_id.resource:
+        xmpp_id = pyxmpp.all.JID(xmpp_id.node, xmpp_id.domain, "rabbitAlertProducer")
+    
+    tls = pyxmpp.streamtls.TLSSettings(require=True, verify_peer=False)
+    
+    for recipient in IM_RECIPS:
+        pyxmpp.jabber.simple.send_message(xmpp_id, IM_PASS, pyxmpp.jid.JID(recipient), str(message), "Web Alert!")
+    #except Exception, e:
+    #    print "Problem transmitting to IM server. %s" % str(e)
+    #    channel.basic_ack(msg.delivery_tag)
+    #    return
 
     # Acknowledge the message
     channel.basic_ack(msg.delivery_tag)
