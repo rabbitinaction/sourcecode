@@ -11,10 +11,9 @@ $ch = $conn->channel();
 $ch->access_request("/", false, false, true, true);
 
 $msg_body = $argv[1];
-$routing_key = isset($argv[2]) ? $argv[2] : '#';
 
 $msg = new AMQPMessage($msg_body, array('content_type' => 'text/plain'));
-$ch->basic_publish($msg, $exchange, $routing_key);
+$ch->basic_publish($msg, $exchange);
 
 $ch->close();
 $conn->close();
