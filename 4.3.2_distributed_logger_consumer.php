@@ -1,6 +1,11 @@
 #!/usr/bin/env php
 <?php
 
+### JJWW: Straight forward. But is there a way to make so that you can configure the queue/exchange
+###         bindings without changing the code? Make it more realistic as a starting point for 
+###         distributed logging? Or maybe this grows into that throughout the example?
+
+
 require_once('../amqp.inc');
 include_once('./default_amqp_conf.php');
 
@@ -23,7 +28,7 @@ $ch->exchange_declare($exchange, 'topic', false, true, false);
 $ch->queue_bind($queue, $exchange, $routing_key);
 
 $consumer = function($msg) use ($ch, $consumer_tag){
-  exec(sprintf('echo "%s" >> /tmp/%s.log' , $msg->body, $consumer_tag));
+  exec(sprintf('echo "%s" >> /tmp/%s.log' , $msg->body, $consumer_tag)); # JJWW: Is there a way to do this with native calls? Just think adding a shell call might be confusing as to how it's operating.
 
   $ch->basic_ack($msg->delivery_info['delivery_tag']);
 };
