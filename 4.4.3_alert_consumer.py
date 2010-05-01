@@ -4,12 +4,13 @@
 # 
 # Requires: py-amqplib >= 0.5
 #           xmppy >= 0.5
+#           python-twitter >= 0.6
 # 
 # Author: Jason J. W. Williams
 # (C)2010
 ###############################################
 import socket, struct, sys, json, smtplib
-import xmpp
+import xmpp, twitter
 from amqplib import client_0_8 as amqp
 
 # Broker settings
@@ -21,9 +22,9 @@ AMQP_EXCHANGE = "alerts"
 channel = None
 
 # Twitter settings
-TWITTER_ENDPOINT = "http://"
-TWITTER_USER = "joetwit"
-TWITTER_PASS = "joepass"
+TWITTER_USER = "rabbitinaction"
+TWITTER_PASS = "1rabbit1"
+TWITTER_RECIPS = ["jasonjwwilliams"]
 
 # Email (SMTP) settings
 EMAIL_SERVER = "204.134.222.177"
@@ -44,6 +45,7 @@ def twitter_notify(msg):
     """Sends the message text as a Twitter direct message to the specified Twitter recipient."""
     global channel
     
+    
     # Decode our message from JSON
     try:
         message = json.loads(msg.body)
@@ -54,7 +56,10 @@ def twitter_notify(msg):
     
     # Transmit message to Twitter
     try:
-        print "Sending to Twitter!"
+        twitter_api = twitter.Api(username=TWITTER_USER, password=TWITTER_PASS)
+        for recipient in TWITTER_RECIPS:
+            twitter_api.PostDirectMessage(user=recipient, text=message)
+        print "Sent alert via Twitter Direct Message! Alert Text: %s Recipients: %s" % (str(message), str(TWITTER_RECIPS))
     except Exception, e:
         print "Problem transmitting to Twitter. %s" % str(e)
         channel.basic_ack(msg.delivery_tag)
