@@ -32,9 +32,9 @@ $ch->queue_declare($queue);
 
 $ch->queue_bind($queue, $exchange);
 
-$consumer = function($msg) use ($ch, $consumer_tag){ # JJWW: What does the 'use' do?
+$consumer = function($msg) use ($ch, $consumer_tag){
 
-  if ($msg->body === 'quit') { # JJWW: Do you think the cancel logic might be confusing in a Hello World?
+  if ($msg->body === 'quit') {
       $ch->basic_cancel($consumer_tag);
   } else{
     echo 'Hello ',  $msg->body, "\n";
