@@ -11,39 +11,39 @@ $callback_function = isset($argv[1]) ? $argv[1] : 'screen_logger';
 $consumer_tag = isset($argv[2]) ? $argv[2] : 'consumer';
 
 $conn = new AMQPConnection(HOST, PORT, USER, PASS);
-$ch = $conn->channel();
-$ch->access_request("/", false, false, true, true);
+$channel = $conn->channel();
+$channel->access_request("/", false, false, true, true);
 
-list($queue) = $ch->queue_declare();
+list($queue) = $channel->queue_declare();
 
 echo $queue, "\n";
 
-$ch->exchange_declare($exchange, 'fanout', false, true, false);
-$ch->queue_bind($queue, $exchange);
+$channel->exchange_declare($exchange, 'fanout', false, true, false);
+$channel->queue_bind($queue, $exchange);
 
-$file_logger = function($msg) use ($ch, $consumer_tag){
+$file_logger = function($msg) use ($channel, $consumer_tag){
   $cmd = sprintf('echo "%s" >> /tmp/%s.log' , $msg->body, $consumer_tag);
   echo "Executing command: ", $cmd, "\n";
   exec($cmd);
-  $ch->basic_ack($msg->delivery_info['delivery_tag']);
+  $channel->basic_ack($msg->delivery_info['delivery_tag']);
 };
 
-$screen_logger = function($msg) use ($ch, $consumer_tag){
+$screen_logger = function($msg) use ($channel, $consumer_tag){
   echo $msg->body, "\n";
-  $ch->basic_ack($msg->delivery_info['delivery_tag']);
+  $channel->basic_ack($msg->delivery_info['delivery_tag']);
 };
 
-$shutdown = function($ch, $conn) use ($consumer_tag){
-  $ch->basic_cancel($consumer_tag);
-  $ch->close();
+$shutdown = function($channel, $conn) use ($consumer_tag){
+  $channel->basic_cancel($consumer_tag);
+  $channel->close();
   $conn->close();
 };
 
-register_shutdown_function($shutdown, $ch, $conn);
+register_shutdown_function($shutdown, $channel, $conn);
 
-$ch->basic_consume($queue, $consumer_tag, false, false, false, false, $$callback_function);
+$channel->basic_consume($queue, $consumer_tag, false, false, false, false, $$callback_function);
 
-while(count($ch->callbacks)) {
-    $ch->wait();
+while(count($channel->callbacks)) {
+    $channel->wait();
 }
 ?>

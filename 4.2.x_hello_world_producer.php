@@ -20,15 +20,15 @@ define('PASS', 'guest');
 $exchange = 'hello-exchange';
 
 $conn = new AMQPConnection(HOST, PORT, USER, PASS);
-$ch = $conn->channel();
+$channel = $conn->channel();
 
-$ch->access_request("/", false, false, true, true);
+$channel->access_request("/", false, false, true, true);
 
-$ch->exchange_declare($exchange, 'direct', false, true, false);
+$channel->exchange_declare($exchange, 'direct', false, true, false);
 
 $msg = new AMQPMessage($argv[1], array('content_type' => 'text/plain'));
-$ch->basic_publish($msg, 'hello-exchange');
+$channel->basic_publish($msg, 'hello-exchange');
 
-$ch->close();
+$channel->close();
 $conn->close();
 ?>

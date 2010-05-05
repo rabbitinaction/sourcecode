@@ -7,14 +7,14 @@ include_once('./default_amqp_conf.php');
 $exchange = 'logs_exchange';
 
 $conn = new AMQPConnection(HOST, PORT, USER, PASS);
-$ch = $conn->channel();
-$ch->access_request("/", false, false, true, true);
+$channel = $conn->channel();
+$channel->access_request("/", false, false, true, true);
 
 $msg_body = $argv[1];
 
 $msg = new AMQPMessage($msg_body, array('content_type' => 'text/plain'));
-$ch->basic_publish($msg, $exchange);
+$channel->basic_publish($msg, $exchange);
 
-$ch->close();
+$channel->close();
 $conn->close();
 ?>
