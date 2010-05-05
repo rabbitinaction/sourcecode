@@ -8,7 +8,6 @@ $exchange = 'logs_exchange';
 
 $conn = new AMQPConnection(HOST, PORT, USER, PASS);
 $channel = $conn->channel();
-$channel->access_request("/", false, false, true, true);
 
 $msg_body = $argv[1];
 

@@ -12,7 +12,6 @@ $consumer_tag = isset($argv[2]) ? $argv[2] : 'consumer';
 
 $conn = new AMQPConnection(HOST, PORT, USER, PASS);
 $channel = $conn->channel();
-$channel->access_request("/", false, false, true, true);
 
 list($queue) = $channel->queue_declare();
 
@@ -21,11 +20,11 @@ echo $queue, "\n";
 $channel->exchange_declare($exchange, 'fanout', false, true, false);
 $channel->queue_bind($queue, $exchange);
 
-$file_logger = function($msg) use ($channel, $consumer_tag){
-  $cmd = sprintf('echo "%s" >> /tmp/%s.log' , $msg->body, $consumer_tag);
-  echo "Executing command: ", $cmd, "\n";
-  exec($cmd);
-  $channel->basic_ack($msg->delivery_info['delivery_tag']);
+$file_logger = function($msg) use ($ch, $consumer_tag){
+  $fp = fopen("/tmp/{$consumer_tag}.log", 'a');
+  fwrite($fp, $msg->body . "\n");
+  fclose($fp);
+  $ch->basic_ack($msg->delivery_info['delivery_tag']);
 };
 
 $screen_logger = function($msg) use ($channel, $consumer_tag){

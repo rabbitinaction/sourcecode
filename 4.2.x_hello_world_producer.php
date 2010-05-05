@@ -22,8 +22,6 @@ $exchange = 'hello-exchange';
 $conn = new AMQPConnection(HOST, PORT, USER, PASS);
 $channel = $conn->channel();
 
-$channel->access_request("/", false, false, true, true);
-
 $channel->exchange_declare($exchange, 'direct', false, true, false);
 
 $msg = new AMQPMessage($argv[1], array('content_type' => 'text/plain'));
