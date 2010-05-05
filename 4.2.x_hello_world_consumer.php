@@ -30,9 +30,9 @@ $channel->queue_declare($queue);
 
 $channel->queue_bind($queue, $exchange);
 
-$consumer = function($msg) use ($channel, $consumer_tag){
+$consumer = function($msg){
   echo 'Hello ',  $msg->body, "\n";
-  $channel->basic_ack($msg->delivery_info['delivery_tag']);
+  $msg->delivery_info['channel']->basic_ack($msg->delivery_info['delivery_tag']);
 };
 
 $channel->basic_consume($queue, $consumer_tag, false, false, false, false, $consumer);

@@ -20,16 +20,18 @@ echo $queue, "\n";
 $channel->exchange_declare($exchange, 'fanout', false, true, false);
 $channel->queue_bind($queue, $exchange);
 
-$file_logger = function($msg) use ($ch, $consumer_tag){
-  $fp = fopen("/tmp/{$consumer_tag}.log", 'a');
+$file_logger = function($msg){
+
+  $fp = fopen("/tmp/{$msg->delivery_info['consumer_tag']}.log", 'a');
   fwrite($fp, $msg->body . "\n");
   fclose($fp);
-  $ch->basic_ack($msg->delivery_info['delivery_tag']);
+
+  $msg->delivery_info['channel']->basic_ack($msg->delivery_info['delivery_tag']);
 };
 
-$screen_logger = function($msg) use ($channel, $consumer_tag){
+$screen_logger = function($msg){
   echo $msg->body, "\n";
-  $channel->basic_ack($msg->delivery_info['delivery_tag']);
+  $msg->delivery_info['channel']->basic_ack($msg->delivery_info['delivery_tag']);
 };
 
 $shutdown = function($channel, $conn) use ($consumer_tag){
