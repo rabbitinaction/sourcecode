@@ -10,16 +10,17 @@
 # (C)2010
 ###################################################
 
-require_once('../amqp.inc');
+require_once('../lib/amqp.inc');
 
 define('HOST', 'localhost');
 define('PORT', 5672);
 define('USER', 'guest');
 define('PASS', 'guest');
+define('VHOST', '/');
 
 $exchange = 'hello-exchange';
 
-$conn = new AMQPConnection(HOST, PORT, USER, PASS);
+$conn = new AMQPConnection(HOST, PORT, USER, PASS, VHOST);
 $channel = $conn->channel();
 
 $channel->exchange_declare($exchange, 'direct', false, true, false);
