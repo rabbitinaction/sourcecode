@@ -1,10 +1,8 @@
 ###############################################
 # RabbitMQ in Action
-# Chapter 4.3.3 - Alerting Server Consumer
+# Chapter 3.2.2 - Alerting Server Consumer
 # 
 # Requires: py-amqplib >= 0.5
-#           xmppy >= 0.5
-#           python-twitter >= 0.6
 # 
 # Author: Jason J. W. Williams
 # (C)2010

@@ -1,6 +1,8 @@
 ###############################################
 # RabbitMQ in Action
-# Chapter 4.3.3 - Alerting Producer
+# Chapter 3.2.2 - Alerting Producer
+# 
+# Requires: py-amqplib >= 0.5
 # 
 # Author: Jason J. W. Williams
 # (C)2010
