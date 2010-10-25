@@ -12,6 +12,7 @@ import pika
 
 
 def send_mail(recipients, subject, message):
+    """E-mail generator for received alerts."""
     headers = "From: %s\r\nTo: \r\nDate: \r\nSubject: %s\r\n\r\n" % ("alerts@ourcompany.com", subject)
     
     smtp_server = smtplib.SMTP()
