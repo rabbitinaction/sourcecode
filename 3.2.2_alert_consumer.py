@@ -7,8 +7,8 @@
 # Author: Jason J. W. Williams
 # (C)2010
 ###############################################
-import socket, struct, sys, json, smtplib
-from amqplib import client_0_8 as amqp
+import socket, struct, sys, json, asyncore, smtplib
+import pika
 
 
 def send_mail(recipients, subject, message):
@@ -20,30 +20,38 @@ def send_mail(recipients, subject, message):
     smtp_server.close()
 
 # Notify Processors
-def critical_notify(msg):
+def critical_notify(channel, method, header, body):
     """Sends CRITICAL alerts to administrators via e-mail."""
-    global channel
     
     EMAIL_RECIPS = ["ops.team@ourcompany.com",]
     
     # Decode our message from JSON
-    message = json.loads(msg.body)
+    if header.content_type != "application/json":
+        print "Discarding message. Not JSON."
+        channel.basic_ack(delivery_tag=method.delivery_tag)
+        return
+    
+    message = json.loads(body)
     
     # Transmit e-mail to SMTP server
     send_mail(EMAIL_RECIPS, "CRITICAL ALERT", message)
     print "Sent alert via e-mail! Alert Text: %s  Recipients: %s" % (str(message), str(EMAIL_RECIPS))
     
     # Acknowledge the message
-    channel.basic_ack(msg.delivery_tag)
+    channel.basic_ack(delivery_tag=method.delivery_tag)
 
-def rate_limit_notify(msg):
+def rate_limit_notify(channel, method, header, body):
     """Sends the message to the administrators via e-mail."""
-    global channel
     
     EMAIL_RECIPS = ["api.team@ourcompany.com",]
     
     # Decode our message from JSON
-    message = json.loads(msg.body)
+    if header.content_type != "application/json":
+        print "Discarding message. Not JSON."
+        channel.basic_ack(delivery_tag=method.delivery_tag)
+        return
+    
+    message = json.loads(body)
     
     # Transmit e-mail to SMTP server
     send_mail(EMAIL_RECIPS, "RATE LIMIT ALERT!", message)
@@ -51,12 +59,12 @@ def rate_limit_notify(msg):
     print "Sent alert via e-mail! Alert Text: %s  Recipients: %s" % (str(message), str(EMAIL_RECIPS))
     
     # Acknowledge the message
-    channel.basic_ack(msg.delivery_tag)
+    channel.basic_ack(delivery_tag=method.delivery_tag)
 
 
 if __name__ == "__main__":
     # Broker settings
-    AMQP_SERVER = "localhost:5672"
+    AMQP_SERVER = "localhost"
     AMQP_USER = "alert_user"
     AMQP_PASS = "alertme"
     AMQP_VHOST = "/"
@@ -64,10 +72,11 @@ if __name__ == "__main__":
     channel = None
     
     # Establish connection to broker
-    conn_broker = amqp.Connection( host=AMQP_SERVER,
-                                   userid=AMQP_USER,
-                                   password=AMQP_PASS,
-                                   virtual_host=AMQP_VHOST )
+    creds_broker = pika.PlainCredentials(AMQP_USER, AMQP_PASS)
+    conn_broker = pika.AsyncoreConnection(pika.ConnectionParameters(AMQP_SERVER,
+                                                                    virtual_host = AMQP_VHOST,
+                                                                    credentials = creds_broker,
+                                                                    heartbeat = 10))
     
     channel = conn_broker.channel()
     
@@ -84,18 +93,17 @@ if __name__ == "__main__":
     channel.queue_bind(queue="rate_limit", exchange="alerts", routing_key="*.rate_limit")
     
     # Make our alert processors
-    channel.basic_consume( queue="critical",
+    channel.basic_consume( critical_notify,
+                           queue="critical",
                            no_ack=False,
-                           callback=critical_notify,
                            consumer_tag="critical")
     
-    channel.basic_consume( queue="rate_limit",
+    channel.basic_consume( rate_limit_notify,
+                           queue="rate_limit",
                            no_ack=False,
-                           callback=rate_limit_notify,
                            consumer_tag="rate_limit")
     
     print "Ready for alerts!"
-    while True:
-        channel.wait()
+    pika.asyncore_loop()
     
     

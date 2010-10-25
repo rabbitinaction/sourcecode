@@ -8,7 +8,7 @@
 # (C)2010
 ###############################################
 import socket, struct, sys, json
-from amqplib import client_0_8 as amqp
+import pika
 from optparse import OptionParser
 
 
@@ -21,22 +21,27 @@ args = opt_parser.parse_args()[0]
 
 
 # Establish connection to broker
-conn_broker = amqp.Connection( host="localhost",
-                               userid="alert_user",
-                               password="alertme",
-                               virtual_host="/" )
+creds_broker = pika.PlainCredentials("alert_user", "alertme")
+conn_broker = pika.AsyncoreConnection(pika.ConnectionParameters("localhost",
+                                                                virtual_host = "/",
+                                                                credentials = creds_broker,
+                                                                heartbeat = 10))
 
 channel = conn_broker.channel()
 
 # Publish alert message to broker
-try:
-    msg = amqp.Message(json.dumps(args.message))
-    channel.basic_publish(msg, exchange="alerts", routing_key=args.routing_key)
-    channel.close()
-    conn_broker.close()
-except Exception, e:
-    print "Error publish message. %s" % str(e)
-    sys.exit(-1)
+msg = json.dumps(args.message)
+msg_props = pika.BasicProperties()
+msg_props.content_type = "application/json"
+msg_props.durable = False
+
+channel.basic_publish(body=msg,
+                      exchange="alerts",
+                      properties=msg_props,
+                      routing_key=args.routing_key,
+                      block_on_flow_control = True)
+channel.close()
+conn_broker.close()
 
 print "Sent message %s tagged with routing key '%s' to exchange '/'." % (json.dumps(args.message),
                                                                          args.routing_key)
