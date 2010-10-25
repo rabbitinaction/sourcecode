@@ -10,212 +10,91 @@
 # (C)2010
 ###############################################
 import socket, struct, sys, json, smtplib
-import xmpp, twitter
 from amqplib import client_0_8 as amqp
 
-# Broker settings
-AMQP_SERVER = "localhost:5672"
-AMQP_USER = "alert_user"
-AMQP_PASS = "alertme"
-AMQP_VHOST = "/"
-AMQP_EXCHANGE = "alerts"
-channel = None
 
-# Twitter settings
-TWITTER_USER = "rabbitinaction"
-TWITTER_PASS = "1rabbit1"
-TWITTER_RECIPS = ["jasonjwwilliams"]
-
-# Email (SMTP) settings
-EMAIL_SERVER = "204.134.222.177"
-EMAIL_PORT = 25
-EMAIL_FROM = "alerts@mycorp.tld"
-EMAIL_SUBJECT = "Web Process Alert!"
-EMAIL_RECIPS = ["williamsjj@digitar.com",]
-
-# IM (XMPP) settings
-IM_SERVER = "talk.google.com"
-IM_PORT = 5223
-IM_USER = "rabbitinaction@gmail.com"
-IM_PASS = "1rabbit1"
-IM_RECIPS = ["williamsjj@im.digitar.com", "jasonjwwilliams@gmail.com"]
+def send_mail(recipients, subject, message):
+    headers = "From: %s\r\nTo: \r\nDate: \r\nSubject: %s\r\n\r\n" % ("alerts@ourcompany.com", subject)
+    
+    smtp_server = smtplib.SMTP()
+    smtp_server.connect("mail.ourcompany.com", 25)
+    smtp_server.sendmail("alerts@ourcompany.com", recipients, headers + str(message))
+    smtp_server.close()
 
 # Notify Processors
-def twitter_notify(msg):
-    """Sends the message text as a Twitter direct message to the specified Twitter recipient."""
+def critical_notify(msg):
+    """Sends CRITICAL alerts to administrators via e-mail."""
     global channel
     
+    EMAIL_RECIPS = ["ops.team@ourcompany.com",]
     
     # Decode our message from JSON
-    try:
-        message = json.loads(msg.body)
-    except Exception, e:
-        print "Problem decoding JSON message. %s" % str(e)
-        channel.basic_ack(msg.delivery_tag)
-        return
+    message = json.loads(msg.body)
     
-    # Transmit message to Twitter
-    try:
-        twitter_api = twitter.Api(username=TWITTER_USER, password=TWITTER_PASS)
-        for recipient in TWITTER_RECIPS:
-            twitter_api.PostDirectMessage(user=recipient, text=message)
-        print "Sent alert via Twitter Direct Message! Alert Text: %s Recipients: %s" % (str(message), str(TWITTER_RECIPS))
-    except Exception, e:
-        print "Problem transmitting to Twitter. %s" % str(e)
-        channel.basic_ack(msg.delivery_tag)
-        return
-    
-    # Acknowledge the message
-    channel.basic_ack(msg.delivery_tag)
-
-def im_notify(msg):
-    """Sends an IM with the message text to the specified recipient."""
-    global channel
-
-    # Decode our message from JSON
-    try:
-        message = json.loads(msg.body)
-    except Exception, e:
-        print "Problem decoding JSON message. %s" % str(e)
-        channel.basic_ack(msg.delivery_tag)
-        return
-
-    # Transmit message to XMPP server
-    try:
-        xmpp_client = xmpp.Client(IM_USER.split("@")[1], debug=[])
-        xmpp_client.connect(server=(IM_SERVER, IM_PORT))
-        xmpp_client.auth(IM_USER.split("@")[0], IM_PASS, "rabbitAlertProducer")
-        xmpp_client.sendInitPresence()
-    
-        for recipient in IM_RECIPS:
-            xmpp_message = xmpp.Message(recipient, str(message))
-            xmpp_message.setAttr('type', 'chat')
-            xmpp_client.send(xmpp_message)
-    
-        print "Sent alert via IM! Alert Text: %s Recipients: %s" % (str(message), str(IM_RECIPS))
-    except Exception, e:
-        print "Problem transmitting to IM server. %s" % str(e)
-        channel.basic_ack(msg.delivery_tag)
-        return
-
-    # Acknowledge the message
-    channel.basic_ack(msg.delivery_tag)
-
-def email_notify(msg):
-    """Sends an email with the message text to the specified recipient."""
-    global channel
-
-    # Decode our message from JSON
-    try:
-        message = json.loads(msg.body)
-    except Exception, e:
-        print "Problem decoding JSON message. %s" % str(e)
-        channel.basic_ack(msg.delivery_tag)
-        return
-
     # Transmit e-mail to SMTP server
-    try:
-        headers = "From: %s\r\nTo: \r\nDate: \r\nSubject: %s\r\n\r\n" % (EMAIL_FROM, EMAIL_SUBJECT)
-        
-        smtp_server = smtplib.SMTP()
-        smtp_server.connect(EMAIL_SERVER, EMAIL_PORT)
-        smtp_server.sendmail(EMAIL_FROM, EMAIL_RECIPS, headers + str(message))
-        smtp_server.close()
-        
-        print "Sent alert via e-mail! Alert Text: %s  Recipients: %s" % (str(message), str(EMAIL_RECIPS))
-    except Exception, e:
-        print "Problem transmitting to e-mail server. %s" % str(e)
-        channel.basic_ack(msg.delivery_tag)
-        return
-
+    send_mail(EMAIL_RECIPS, "CRITICAL ALERT", message)
+    print "Sent alert via e-mail! Alert Text: %s  Recipients: %s" % (str(message), str(EMAIL_RECIPS))
+    
     # Acknowledge the message
     channel.basic_ack(msg.delivery_tag)
 
-
-TWITTER = { "queue" : "twitter",
-            "callback" : twitter_notify }
-IM      = { "queue" : "im",
-            "callback" : im_notify }
-EMAIL   = { "queue" : "email",
-            "callback" : email_notify }
-
-
-
-# Topic Bindings
-topic_bindings = [ ("req-per-sec.*", (EMAIL,)),
-                   ("mal-req_vol.*", (EMAIL, IM)),
-                   ("talky-ip.*", (EMAIL,TWITTER)),
-                   ("*.email", (EMAIL,)),
-                   ("*.twitter", (TWITTER,)),
-                   ("*.im", (IM,)) ]
-
-
-
-
+def rate_limit_notify(msg):
+    """Sends the message to the administrators via e-mail."""
+    global channel
+    
+    EMAIL_RECIPS = ["api.team@ourcompany.com",]
+    
+    # Decode our message from JSON
+    message = json.loads(msg.body)
+    
+    # Transmit e-mail to SMTP server
+    send_mail(EMAIL_RECIPS, "RATE LIMIT ALERT!", message)
+    
+    print "Sent alert via e-mail! Alert Text: %s  Recipients: %s" % (str(message), str(EMAIL_RECIPS))
+    
+    # Acknowledge the message
+    channel.basic_ack(msg.delivery_tag)
 
 
 if __name__ == "__main__":
+    # Broker settings
+    AMQP_SERVER = "localhost:5672"
+    AMQP_USER = "alert_user"
+    AMQP_PASS = "alertme"
+    AMQP_VHOST = "/"
+    AMQP_EXCHANGE = "alerts"
+    channel = None
     
-    # Establish connection to broker and declare echange
-    try:
-        conn_broker = amqp.Connection( host=AMQP_SERVER,
-                                       userid=AMQP_USER,
-                                       password=AMQP_PASS,
-                                       virtual_host=AMQP_VHOST )
-        
-        channel = conn_broker.channel()
+    # Establish connection to broker
+    conn_broker = amqp.Connection( host=AMQP_SERVER,
+                                   userid=AMQP_USER,
+                                   password=AMQP_PASS,
+                                   virtual_host=AMQP_VHOST )
     
-    except (socket.gaierror, socket.error, IOError), e:
-        print "Error connecting to server! %s" % str(e)
-        sys.exit(-1)
-    except struct.error, e:
-        print "Couldn't log on to vhost! Please check your credentials."
-        sys.exit(-1)
+    channel = conn_broker.channel()
     
-    try:
-        channel.exchange_declare( exchange=AMQP_EXCHANGE,
-                                  type="topic",
-                                  auto_delete=False)
-    except Exception, e:
-        print "Couldn't create exchange! %s" % str(e)
-        sys.exit(-1)
+    # Declare the Exchange
+    channel.exchange_declare( exchange=AMQP_EXCHANGE,
+                              type="topic",
+                              auto_delete=False)
     
-    # Build the queues and bindings for our topics
-    for binding in topic_bindings:
-        try:
-            for notify_type in binding[1]:
-                channel.queue_declare( queue=notify_type["queue"],
-                                       auto_delete=False)
-                channel.queue_bind( queue=notify_type["queue"],
-                                    exchange=AMQP_EXCHANGE,
-                                    routing_key=binding[0])
-        except Exception, e:
-            print "Error encountered creating queues and bindings. %s" % str(e)
-            sys.exit(-1)
+    # Build the queues and bindings for our topics    
+    channel.queue_declare(queue="critical", auto_delete=False)
+    channel.queue_bind(queue="critical", exchange="alerts", routing_key="critical.*")
     
+    channel.queue_declare(queue="rate_limit", auto_delete=False)
+    channel.queue_bind(queue="rate_limit", exchange="alerts", routing_key="*.rate_limit")
     
     # Make our alert processors
-    try:
-        channel.basic_consume( queue=TWITTER["queue"],
-                               no_ack=False,
-                               callback=TWITTER["callback"],
-                               consumer_tag="twitter")
-        
-        channel.basic_consume( queue=IM["queue"],
-                               no_ack=False,
-                               callback=IM["callback"],
-                               consumer_tag="im")
-        
-        channel.basic_consume( queue=EMAIL["queue"],
-                               no_ack=False,
-                               callback=EMAIL["callback"],
-                               consumer_tag="email")
-    except amqp.AMQPChannelException, e:
-        print "One or more queues does not exist on the broker. Could not set up consumption."
-        sys.exit(-1)
-    except Exception, e:
-        print "Unexpected connection error setting up channel consumers."
-        sys.exit(-1)
+    channel.basic_consume( queue="critical",
+                           no_ack=False,
+                           callback=critical_notify,
+                           consumer_tag="critical")
+    
+    channel.basic_consume( queue="rate_limit",
+                           no_ack=False,
+                           callback=rate_limit_notify,
+                           consumer_tag="rate_limit")
     
     print "Ready for alerts!"
     while True:
