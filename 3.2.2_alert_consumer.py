@@ -74,10 +74,11 @@ if __name__ == "__main__":
     
     # Establish connection to broker
     creds_broker = pika.PlainCredentials(AMQP_USER, AMQP_PASS)
-    conn_broker = pika.AsyncoreConnection(pika.ConnectionParameters(AMQP_SERVER,
-                                                                    virtual_host = AMQP_VHOST,
-                                                                    credentials = creds_broker,
-                                                                    heartbeat = 10))
+    conn_params = pika.ConnectionParameters(AMQP_SERVER,
+                                            virtual_host = AMQP_VHOST,
+                                            credentials = creds_broker,
+                                            heartbeat = 10)
+    conn_broker = pika.AsyncoreConnection(conn_params)
     
     channel = conn_broker.channel()
     
