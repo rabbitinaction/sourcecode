@@ -2,7 +2,7 @@
 # RabbitMQ in Action
 # Chapter 3.2.2 - Alerting Producer
 # 
-# Requires: py-amqplib >= 0.5
+# Requires: pika >= 0.5
 # 
 # Author: Jason J. W. Williams
 # (C)2010
