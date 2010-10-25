@@ -70,7 +70,6 @@ if __name__ == "__main__":
     AMQP_PASS = "alertme"
     AMQP_VHOST = "/"
     AMQP_EXCHANGE = "alerts"
-    channel = None
     
     # Establish connection to broker
     creds_broker = pika.PlainCredentials(AMQP_USER, AMQP_PASS)

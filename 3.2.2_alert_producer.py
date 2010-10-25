@@ -11,14 +11,12 @@ import socket, struct, sys, json
 import pika
 from optparse import OptionParser
 
-
 # Read in command line arguments
 opt_parser = OptionParser()
 opt_parser.add_option("-r", "--routing-key", dest="routing_key", help="Routing key for message (e.g. myalert.im)")
 opt_parser.add_option("-m", "--message", dest="message", help="Message text for alert.")
 
 args = opt_parser.parse_args()[0]
-
 
 # Establish connection to broker
 creds_broker = pika.PlainCredentials("alert_user", "alertme")
