@@ -13,17 +13,24 @@ from optparse import OptionParser
 
 # Read in command line arguments
 opt_parser = OptionParser()
-opt_parser.add_option("-r", "--routing-key", dest="routing_key", help="Routing key for message (e.g. myalert.im)")
-opt_parser.add_option("-m", "--message", dest="message", help="Message text for alert.")
+opt_parser.add_option("-r",
+                      "--routing-key",
+                      dest="routing_key",
+                      help="Routing key for message (e.g. myalert.im)")
+opt_parser.add_option("-m",
+                      "--message",
+                      dest="message", 
+                      help="Message text for alert.")
 
 args = opt_parser.parse_args()[0]
 
 # Establish connection to broker
 creds_broker = pika.PlainCredentials("alert_user", "alertme")
-conn_broker = pika.AsyncoreConnection(pika.ConnectionParameters("localhost",
-                                                                virtual_host = "/",
-                                                                credentials = creds_broker,
-                                                                heartbeat = 10))
+conn_params = pika.ConnectionParameters("localhost",
+                                        virtual_host = "/",
+                                        credentials = creds_broker,
+                                        heartbeat = 10)
+conn_broker = pika.AsyncoreConnection(conn_params)
 
 channel = conn_broker.channel()
 
@@ -41,5 +48,6 @@ channel.basic_publish(body=msg,
 channel.close()
 conn_broker.close()
 
-print "Sent message %s tagged with routing key '%s' to exchange '/'." % (json.dumps(args.message),
-                                                                         args.routing_key)
+print "Sent message %s tagged with routing key '%s' to " + \
+      "exchange '/'." % (json.dumps(args.message),
+                         args.routing_key)

@@ -13,11 +13,15 @@ import pika
 
 def send_mail(recipients, subject, message):
     """E-mail generator for received alerts."""
-    headers = "From: %s\r\nTo: \r\nDate: \r\nSubject: %s\r\n\r\n" % ("alerts@ourcompany.com", subject)
+    headers = "From: %s\r\nTo: \r\nDate: \r\n" + \
+              "Subject: %s\r\n\r\n" % ("alerts@ourcompany.com",
+                                       subject)
     
     smtp_server = smtplib.SMTP()
     smtp_server.connect("mail.ourcompany.com", 25)
-    smtp_server.sendmail("alerts@ourcompany.com", recipients, headers + str(message))
+    smtp_server.sendmail("alerts@ourcompany.com",
+                         recipients,
+                         headers + str(message))
     smtp_server.close()
 
 # Notify Processors
@@ -36,7 +40,8 @@ def critical_notify(channel, method, header, body):
     
     # Transmit e-mail to SMTP server
     send_mail(EMAIL_RECIPS, "CRITICAL ALERT", message)
-    print "Sent alert via e-mail! Alert Text: %s  Recipients: %s" % (str(message), str(EMAIL_RECIPS))
+    print "Sent alert via e-mail! Alert Text: %s  " + \
+          "Recipients: %s" % (str(message), str(EMAIL_RECIPS))
     
     # Acknowledge the message
     channel.basic_ack(delivery_tag=method.delivery_tag)
@@ -57,7 +62,8 @@ def rate_limit_notify(channel, method, header, body):
     # Transmit e-mail to SMTP server
     send_mail(EMAIL_RECIPS, "RATE LIMIT ALERT!", message)
     
-    print "Sent alert via e-mail! Alert Text: %s  Recipients: %s" % (str(message), str(EMAIL_RECIPS))
+    print "Sent alert via e-mail! Alert Text: %s  " + \
+          "Recipients: %s" % (str(message), str(EMAIL_RECIPS))
     
     # Acknowledge the message
     channel.basic_ack(delivery_tag=method.delivery_tag)
@@ -88,10 +94,14 @@ if __name__ == "__main__":
     
     # Build the queues and bindings for our topics    
     channel.queue_declare(queue="critical", auto_delete=False)
-    channel.queue_bind(queue="critical", exchange="alerts", routing_key="critical.*")
+    channel.queue_bind(queue="critical",
+                       exchange="alerts",
+                       routing_key="critical.*")
     
     channel.queue_declare(queue="rate_limit", auto_delete=False)
-    channel.queue_bind(queue="rate_limit", exchange="alerts", routing_key="*.rate_limit")
+    channel.queue_bind(queue="rate_limit",
+                       exchange="alerts",
+                       routing_key="*.rate_limit")
     
     # Make our alert processors
     channel.basic_consume( critical_notify,
