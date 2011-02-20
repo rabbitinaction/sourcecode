@@ -1,0 +1,38 @@
+# HAProxy Config for Local RabbitMQ Cluster
+
+global
+	log 127.0.0.1	local0 info
+	maxconn 4096
+	user haproxy
+	stats socket /tmp/haproxy.socket uid haproxy mode 770 level admin
+	daemon
+	#debug
+	#quiet
+
+defaults
+	log	global
+	mode    tcp
+	option	tcplog
+	option	dontlognull
+	retries	3
+	option redispatch
+	maxconn	2000
+	timeout connect	5s
+	timeout client 120s
+	timeout server 120s
+
+# RabbitMQ Local SLB
+listen rabbitmq_local_cluster 127.0.0.1:5670
+    mode tcp
+    balance roundrobin
+    server rabbit 127.0.0.1:5672 check inter 5000 rise 2 fall 3
+    server rabbit_1 127.0.0.1:5673 check inter 5000 rise 2 fall 3
+    server rabbit_2 127.0.0.1:5674 check inter 5000 rise 2 fall 3
+
+# Statistics Page
+listen private_monitoring :8099
+    mode http
+    option httplog
+    stats enable
+    stats uri   /stats
+    stats refresh 5s
