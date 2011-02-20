@@ -30,18 +30,14 @@ if __name__ == "__main__":
     #/(ctc.2) Broker settings
     AMQP_SERVER = sys.argv[1]
     AMQP_PORT = int(sys.argv[2])
-    AMQP_USER = "guest"
-    AMQP_PASS = "guest"
-    AMQP_VHOST = "/"
-    AMQP_EXCHANGE = "cluster_test"
     
     #/(ctc.3) Establish broker connection settings
-    creds_broker = pika.PlainCredentials(AMQP_USER, AMQP_PASS)
-    conn_params = pika.ConnectionParameters(AMQP_SERVER,
-                                            port=AMQP_PORT,
-                                            virtual_host = AMQP_VHOST,
-                                            credentials = creds_broker,
-                                            heartbeat = 10)
+    creds_broker = pika.PlainCredentials("guest", "guest")
+    conn_params = pika.ConnectionParameters( AMQP_SERVER,
+                                             port=AMQP_PORT,
+                                             virtual_host="/",
+                                             credentials=creds_broker,
+                                             heartbeat=10)
     
     #/(ctc.4) Custom connection behavior
     class CustomReconnectionStrategy(SimpleReconnectionStrategy):
@@ -51,13 +47,13 @@ if __name__ == "__main__":
             channel = conn.channel()
 
             #/(ctc.5) Declare the exchange, queues & bindings
-            channel.exchange_declare( exchange=AMQP_EXCHANGE,
+            channel.exchange_declare( exchange="cluster_test",
                                       type="direct",
                                       auto_delete=False)    
-            channel.queue_declare(queue="cluster_test", auto_delete=False)
-            channel.queue_bind(queue="cluster_test",
-                               exchange=AMQP_EXCHANGE,
-                               routing_key="cluster_test")
+            channel.queue_declare( queue="cluster_test", auto_delete=False)
+            channel.queue_bind( queue="cluster_test",
+                                exchange="cluster_test",
+                                routing_key="cluster_test")
 
             #/(ctc.6) Make our msg processor
             channel.basic_consume( msg_rcvd,
@@ -69,8 +65,8 @@ if __name__ == "__main__":
     
     #/(ctc.7) Establish connection to RabbitMQ
     reconnect = CustomReconnectionStrategy()
-    conn_broker = pika.AsyncoreConnection(conn_params,
-                                          reconnection_strategy=reconnect)
+    conn_broker = pika.AsyncoreConnection( conn_params,
+                                           reconnection_strategy=reconnect)
     
     pika.asyncore_loop()
     
