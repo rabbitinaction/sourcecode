@@ -2,23 +2,15 @@
 # RabbitMQ in Action
 # Chapter 4 - Cluster Test Consumer
 # 
-# Requires: pika >= 0.5
+# Requires: pika >= 0.9.3
 # 
 # Author: Jason J. W. Williams
 # (C)2011
 ###############################################
-import sys, json, pika
-from pika.connection import SimpleReconnectionStrategy
+import sys, json, pika, time
 
 
-
-def msg_rcvd(channel, method, header, body):        
-    #/(ctc.0) Decode our message from JSON
-    if header.content_type != "application/json":
-        print "Discarding message. Not JSON."
-        channel.basic_ack(delivery_tag=method.delivery_tag)
-        return
-    
+def msg_rcvd(channel, method, header, body):
     message = json.loads(body)
     
     #/(ctc.1) Print & acknowledge our message
@@ -36,17 +28,18 @@ if __name__ == "__main__":
     conn_params = pika.ConnectionParameters( AMQP_SERVER,
                                              port=AMQP_PORT,
                                              virtual_host="/",
-                                             credentials=creds_broker,
-                                             heartbeat=10)
+                                             credentials=creds_broker)
     
-    #/(ctc.4) Custom connection behavior
-    class CustomReconnectionStrategy(SimpleReconnectionStrategy):
     
-        def on_connection_open(self, conn):
-            self._reset()
-            channel = conn.channel()
-
-            #/(ctc.5) Declare the exchange, queues & bindings
+    #/(ctc.4) On fault, reconnect to RabbitMQ
+    while True:
+        try:
+            #/(ctc.5) Establish connection to RabbitMQ
+            conn_broker = pika.BlockingConnection(conn_params)
+    
+            #/(ctc.6) Custom connection behavior
+            channel = conn_broker.channel()
+            #/(ctc.7) Declare the exchange, queues & bindings
             channel.exchange_declare( exchange="cluster_test",
                                       type="direct",
                                       auto_delete=False)    
@@ -55,19 +48,15 @@ if __name__ == "__main__":
                                 exchange="cluster_test",
                                 routing_key="cluster_test")
 
-            #/(ctc.6) Make our msg processor
+            #/(ctc.8) Start consuming messages
+            print "Ready for testing!"
             channel.basic_consume( msg_rcvd,
                                    queue="cluster_test",
                                    no_ack=False,
                                    consumer_tag="cluster_test")
-        
-            print "Ready for testing!"
+        except Exception:
+            pass
+
     
-    #/(ctc.7) Establish connection to RabbitMQ
-    reconnect = CustomReconnectionStrategy()
-    conn_broker = pika.AsyncoreConnection( conn_params,
-                                           reconnection_strategy=reconnect)
-    
-    pika.asyncore_loop()
     
     
