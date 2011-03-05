@@ -2,7 +2,7 @@
 # RabbitMQ in Action
 # Chapter 3.2.2 - Alerting Server Consumer
 # 
-# Requires: pika >= 0.9.3
+# Requires: pika >= 0.9.5
 # 
 # Author: Jason J. W. Williams
 # (C)2011
@@ -17,12 +17,12 @@ def send_mail(recipients, subject, message):
                "Subject: %s\r\n\r\n") % ("alerts@ourcompany.com",
                                          subject)
     
-    # smtp_server = smtplib.SMTP()
-    #     smtp_server.connect("mail.ourcompany.com", 25)
-    #     smtp_server.sendmail("alerts@ourcompany.com",
-    #                          recipients,
-    #                          headers + str(message))
-    #     smtp_server.close()
+    smtp_server = smtplib.SMTP()
+    smtp_server.connect("mail.ourcompany.com", 25)
+    smtp_server.sendmail("alerts@ourcompany.com",
+                         recipients,
+                         headers + str(message))
+    smtp_server.close()
 
 #/(asc.5) Notify Processors
 def critical_notify(channel, method, header, body):

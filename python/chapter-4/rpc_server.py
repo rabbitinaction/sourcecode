@@ -2,7 +2,7 @@
 # RabbitMQ in Action
 # Chapter 3.3.3 - RPC Server
 # 
-# Requires: pika >= 0.5
+# Requires: pika >= 0.9.5
 # 
 # Author: Jason J. W. Williams
 # (C)2011

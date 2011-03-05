@@ -2,7 +2,7 @@
 # RabbitMQ in Action
 # Chapter 4 - Cluster Test Producer
 # 
-# Requires: pika >= 0.9.3
+# Requires: pika >= 0.9.5
 # 
 # Author: Jason J. W. Williams
 # (C)2011
