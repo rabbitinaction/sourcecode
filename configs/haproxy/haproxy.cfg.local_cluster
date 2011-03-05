@@ -30,7 +30,7 @@ listen rabbitmq_local_cluster 127.0.0.1:5670
     server rabbit_2 127.0.0.1:5674 check inter 5000 rise 2 fall 3
 
 # Statistics Page
-listen private_monitoring :8099
+listen private_monitoring :8100
     mode http
     option httplog
     stats enable

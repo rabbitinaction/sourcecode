@@ -54,6 +54,7 @@ if __name__ == "__main__":
                                    queue="cluster_test",
                                    no_ack=False,
                                    consumer_tag="cluster_test")
+            channel.start_consuming()
         except Exception:
             pass
 
