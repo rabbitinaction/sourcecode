@@ -2,48 +2,43 @@
 # RabbitMQ in Action
 # Chapter 3.2.2 - Alerting Server Consumer
 # 
-# Requires: pika >= 0.5
+# Requires: pika >= 0.9.3
 # 
 # Author: Jason J. W. Williams
-# (C)2010
+# (C)2011
 ###############################################
-import socket, struct, sys, json, asyncore, smtplib
+import socket, struct, sys, json, smtplib
 import pika
 
 
 def send_mail(recipients, subject, message):
     """E-mail generator for received alerts."""
-    headers = "From: %s\r\nTo: \r\nDate: \r\n" + \
-              "Subject: %s\r\n\r\n" % ("alerts@ourcompany.com",
-                                       subject)
+    headers = ("From: %s\r\nTo: \r\nDate: \r\n" + \
+               "Subject: %s\r\n\r\n") % ("alerts@ourcompany.com",
+                                         subject)
     
-    smtp_server = smtplib.SMTP()
-    smtp_server.connect("mail.ourcompany.com", 25)
-    smtp_server.sendmail("alerts@ourcompany.com",
-                         recipients,
-                         headers + str(message))
-    smtp_server.close()
+    # smtp_server = smtplib.SMTP()
+    #     smtp_server.connect("mail.ourcompany.com", 25)
+    #     smtp_server.sendmail("alerts@ourcompany.com",
+    #                          recipients,
+    #                          headers + str(message))
+    #     smtp_server.close()
 
-# Notify Processors
+#/(asc.5) Notify Processors
 def critical_notify(channel, method, header, body):
     """Sends CRITICAL alerts to administrators via e-mail."""
     
     EMAIL_RECIPS = ["ops.team@ourcompany.com",]
     
-    # Decode our message from JSON
-    if header.content_type != "application/json":
-        print "Discarding message. Not JSON."
-        channel.basic_ack(delivery_tag=method.delivery_tag)
-        return
-    
+    #/(asc.6) Decode our message from JSON    
     message = json.loads(body)
     
-    # Transmit e-mail to SMTP server
+    #/(asc.7) Transmit e-mail to SMTP server
     send_mail(EMAIL_RECIPS, "CRITICAL ALERT", message)
-    print "Sent alert via e-mail! Alert Text: %s  " + \
-          "Recipients: %s" % (str(message), str(EMAIL_RECIPS))
+    print ("Sent alert via e-mail! Alert Text: %s  " + \
+           "Recipients: %s") % (str(message), str(EMAIL_RECIPS))
     
-    # Acknowledge the message
+    #/(asc.8) Acknowledge the message
     channel.basic_ack(delivery_tag=method.delivery_tag)
 
 def rate_limit_notify(channel, method, header, body):
@@ -52,47 +47,41 @@ def rate_limit_notify(channel, method, header, body):
     EMAIL_RECIPS = ["api.team@ourcompany.com",]
     
     # Decode our message from JSON
-    if header.content_type != "application/json":
-        print "Discarding message. Not JSON."
-        channel.basic_ack(delivery_tag=method.delivery_tag)
-        return
-    
     message = json.loads(body)
     
     # Transmit e-mail to SMTP server
     send_mail(EMAIL_RECIPS, "RATE LIMIT ALERT!", message)
     
-    print "Sent alert via e-mail! Alert Text: %s  " + \
-          "Recipients: %s" % (str(message), str(EMAIL_RECIPS))
+    print ("Sent alert via e-mail! Alert Text: %s  " + \
+           "Recipients: %s") % (str(message), str(EMAIL_RECIPS))
     
     # Acknowledge the message
     channel.basic_ack(delivery_tag=method.delivery_tag)
 
 
 if __name__ == "__main__":
-    # Broker settings
+    #/(asc.0) Broker settings
     AMQP_SERVER = "localhost"
     AMQP_USER = "alert_user"
     AMQP_PASS = "alertme"
     AMQP_VHOST = "/"
     AMQP_EXCHANGE = "alerts"
     
-    # Establish connection to broker
+    #/(asc.1) Establish connection to broker
     creds_broker = pika.PlainCredentials(AMQP_USER, AMQP_PASS)
     conn_params = pika.ConnectionParameters(AMQP_SERVER,
                                             virtual_host = AMQP_VHOST,
-                                            credentials = creds_broker,
-                                            heartbeat = 10)
-    conn_broker = pika.AsyncoreConnection(conn_params)
+                                            credentials = creds_broker)
+    conn_broker = pika.BlockingConnection(conn_params)
     
     channel = conn_broker.channel()
     
-    # Declare the Exchange
+    #/(asc.2) Declare the Exchange
     channel.exchange_declare( exchange=AMQP_EXCHANGE,
                               type="topic",
                               auto_delete=False)
     
-    # Build the queues and bindings for our topics    
+    #/(asc.3) Build the queues and bindings for our topics    
     channel.queue_declare(queue="critical", auto_delete=False)
     channel.queue_bind(queue="critical",
                        exchange="alerts",
@@ -103,7 +92,8 @@ if __name__ == "__main__":
                        exchange="alerts",
                        routing_key="*.rate_limit")
     
-    # Make our alert processors
+    #/(asc.4) Make our alert processors
+    
     channel.basic_consume( critical_notify,
                            queue="critical",
                            no_ack=False,
@@ -115,6 +105,5 @@ if __name__ == "__main__":
                            consumer_tag="rate_limit")
     
     print "Ready for alerts!"
-    pika.asyncore_loop()
-    
+    channel.start_consuming()
     
