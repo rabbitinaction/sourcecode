@@ -6,8 +6,6 @@ global
 	user haproxy
 	stats socket /tmp/haproxy.socket uid haproxy mode 770 level admin
 	daemon
-	#debug
-	#quiet
 
 defaults
 	log	global
@@ -21,15 +19,17 @@ defaults
 	timeout client 120s
 	timeout server 120s
 
-# RabbitMQ Local SLB
+#/(hap.0) Front-end IP our consumers and producers connect to.
 listen rabbitmq_local_cluster 127.0.0.1:5670
+    #/(hap.1) Load balancing options
     mode tcp
     balance roundrobin
+    #/(hap.2) Custer nodes HAProxy will be load balancing.
     server rabbit 127.0.0.1:5672 check inter 5000 rise 2 fall 3
     server rabbit_1 127.0.0.1:5673 check inter 5000 rise 2 fall 3
     server rabbit_2 127.0.0.1:5674 check inter 5000 rise 2 fall 3
 
-# Statistics Page
+#/(hap.3) Statistics Page
 listen private_monitoring :8100
     mode http
     option httplog
