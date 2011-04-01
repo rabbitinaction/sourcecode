@@ -4,7 +4,6 @@
 global
 	log 127.0.0.1	local0 info
 	maxconn 4096
-	user haproxy
 	stats socket /tmp/haproxy.socket uid haproxy mode 770 level admin
 	daemon
 
@@ -21,17 +20,23 @@ defaults
 	timeout client 120s
 	timeout server 120s
 
-#/(hap.2) Front-end IP our consumers and producers connect to.
+#/(hap.2) Front-end IP for our consumers and producers
+
+
+
 listen rabbitmq_local_cluster 127.0.0.1:5670
     #/(hap.3) Load balancing options
     mode tcp
     balance roundrobin
-    #/(hap.4) Custer nodes HAProxy will be load balancing.
+    #/(hap.4) Cluster nodes HAProxy will be load balancing.
+    
+    
+    
     server rabbit 127.0.0.1:5672 check inter 5000 rise 2 fall 3
     server rabbit_1 127.0.0.1:5673 check inter 5000 rise 2 fall 3
     server rabbit_2 127.0.0.1:5674 check inter 5000 rise 2 fall 3
 
-#/(hap.5) Statistics Page
+#/(hap.5) Statistics page
 listen private_monitoring :8100
     mode http
     option httplog

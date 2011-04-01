@@ -1,0 +1,42 @@
+# HAProxy Config for Local RabbitMQ SLB Warren
+
+#/(haw.0) Logging options
+global
+	log 127.0.0.1	local0 info
+	maxconn 4096
+	stats socket /tmp/haproxy_2.socket uid haproxy mode 770 level admin
+	daemon
+
+#/(haw.1) Load balancing defaults
+defaults
+	log	global
+	mode    tcp
+	option	tcplog
+	option	dontlognull
+	retries	3
+	option redispatch
+	maxconn	2000
+	timeout connect	5s
+	timeout client 120s
+	timeout server 120s
+
+#/(haw.2) Front-end IP for our consumers and producers
+
+
+
+listen rabbitmq_local_cluster 127.0.0.1:5680
+    #/(haw.3) Load balancing options
+    mode tcp
+    balance roundrobin
+    #/(haw.4) Active node
+    server rabbit_a 127.0.0.1:5675 check inter 5000 rise 2 fall 3
+    #/(haw.5) Backup node
+    server rabbit_b 127.0.0.1:5676 backup check inter 5000 rise 2 fall 3
+
+#/(haw.6) Statistics page
+listen private_monitoring :8101
+    mode http
+    option httplog
+    stats enable
+    stats uri   /stats
+    stats refresh 5s

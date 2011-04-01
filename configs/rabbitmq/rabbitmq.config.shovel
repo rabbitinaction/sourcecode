@@ -1,0 +1,50 @@
+[
+    {mnesia, [{dump_log_write_threshold, 100}
+             ]},
+    {rabbit, [{vm_memory_high_watermark, 0.4}
+             ]},
+    {rabbit_shovel,
+       [{shovels,
+         [{avocado_order_shovel,
+           [{sources,      [{broker, "amqp://guest:guest@localhost:5675/"},
+                            {declarations,
+                               [{'queue.declare',
+                                       [{queue, <<"backup_orders">>},
+                                         durable]},
+                                {'exchange.declare',
+                                       [{exchange, <<"incoming_orders">>},
+                                        {type, <<"direct">>},
+                                        durable]},
+                                {'queue.bind',
+                                    [{exchange, <<"incoming_orders">>},
+                                     {queue, <<"backup_orders">>},
+                                     {routing_key, <<"warehouse">>}]}
+                               ]}]},
+            {destinations, [{broker, "amqp://guest:guest@localhost:5676"},
+                            {declarations,
+                               [{'queue.declare', 
+                                    [{queue, <<"warehouse_carpinteria">>},
+                                      durable]},
+                                {'exchange.declare',
+                                       [{exchange, <<"incoming_orders">>},
+                                        {type, <<"direct">>},
+                                        durable]},
+                                {'queue.bind',
+                                    [{exchange, <<"incoming_orders">>},
+                                     {queue, <<"warehouse_carpinteria">>},
+                                     {routing_key, <<"warehouse">>}]}
+                               ]}]},
+            {queue, <<"backup_orders">>},
+            {auto_ack, false},
+            {tx_size, 0},
+            {publish_properties, [{delivery_mode, 2}]},
+            {publish_fields, [{exchange, <<"incoming_orders">>},
+                              {routing_key, <<"warehouse">>}]},
+            {reconnect_delay, 5}
+           ]}
+          ]
+        }]
+     }
+].
+
+
