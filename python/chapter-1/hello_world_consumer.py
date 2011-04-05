@@ -8,7 +8,7 @@
 # (C)2011
 ###############################################
 
-import pika, asyncore
+import pika
 
 credentials = pika.PlainCredentials("guest", "guest")
 conn_params = pika.ConnectionParameters("localhost",
