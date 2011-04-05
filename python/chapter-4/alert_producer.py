@@ -7,8 +7,7 @@
 # Author: Jason J. W. Williams
 # (C)2011
 ###############################################
-import socket, struct, sys, json
-import pika
+import json, pika
 from optparse import OptionParser
 
 #/(asp.0) Read in command line arguments

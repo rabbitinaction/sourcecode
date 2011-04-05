@@ -7,7 +7,7 @@
 # Author: Jason J. W. Williams
 # (C)2011
 ###############################################
-import socket, struct, sys, json, smtplib
+import json, smtplib
 import pika
 
 
