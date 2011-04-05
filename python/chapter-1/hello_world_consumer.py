@@ -13,7 +13,7 @@ import pika, asyncore
 credentials = pika.PlainCredentials("guest", "guest")
 conn_params = pika.ConnectionParameters("localhost",
                                         credentials = credentials)
-conn_broker = pika.AsyncoreConnection(conn_params) #/(hwc.1) Establish connection to broker
+conn_broker = pika.BlockingConnection(conn_params) #/(hwc.1) Establish connection to broker
 
 
 channel = conn_broker.channel() #/(hwc.2) Obtain channel
@@ -37,8 +37,7 @@ def msg_consumer(channel, method, header, body): #/(hwc.6) Make function to proc
     
     if body == "quit":
         channel.basic_cancel(consumer_tag="hello-consumer") #/(hwc.8) Stop consuming more messages and quit
-        channel.close()
-        conn_broker.close()
+        channel.stop_consuming()
     else:
         print body
     
@@ -50,4 +49,4 @@ channel.basic_consume( msg_consumer,    #/(hwc.9) Subscribe our consumer
                        queue="hello-queue",
                        consumer_tag="hello-consumer")
 
-asyncore.loop() #/(hwc.10) Start consuming
+channel.start_consuming() #/(hwc.10) Start consuming

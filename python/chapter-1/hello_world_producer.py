@@ -13,7 +13,7 @@ import pika, sys
 credentials = pika.PlainCredentials("guest", "guest")
 conn_params = pika.ConnectionParameters("localhost",
                                         credentials = credentials)
-conn_broker = pika.AsyncoreConnection(conn_params) #/(hwp.1) Establish connection to broker
+conn_broker = pika.BlockingConnection(conn_params) #/(hwp.1) Establish connection to broker
 
 
 channel = conn_broker.channel() #/(hwp.2) Obtain channel
@@ -32,5 +32,3 @@ channel.basic_publish(body=msg,
                       exchange="hello-exchange",
                       properties=msg_props,
                       routing_key="hola") #/(hwp.5) Publish the message
-channel.close()
-conn_broker.close() #/(hwp.6) Close the channel and connection
