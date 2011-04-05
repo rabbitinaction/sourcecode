@@ -10,7 +10,7 @@
 
 import pika, json
 
-# Establish connection to broker
+#/(apiserver.0) Establish connection to broker
 creds_broker = pika.PlainCredentials("rpc_user", "rpcme")
 conn_params = pika.ConnectionParameters("localhost",
                                         virtual_host = "/",
@@ -18,7 +18,7 @@ conn_params = pika.ConnectionParameters("localhost",
 conn_broker = pika.BlockingConnection(conn_params)
 channel = conn_broker.channel()
 
-# Declare Exchange & "ping" Call Queue
+#/(apiserver.1) Declare Exchange & "ping" Call Queue
 channel.exchange_declare(exchange="rpc",
                          type="direct",
                          auto_delete=False)
@@ -27,7 +27,7 @@ channel.queue_bind(queue="ping",
                    exchange="rpc",
                    routing_key="ping")
 
-# Wait for RPC calls and reply
+#/(apiserver.2) Wait for RPC calls and reply
 def api_ping(channel, method, header, body):
     """'ping' API call."""
     channel.basic_ack(delivery_tag=method.delivery_tag)
