@@ -23,7 +23,7 @@ opt_parser.add_option("-m",
 
 args = opt_parser.parse_args()[0]
 
-#(asp.1) Establish connection to broker
+#/(asp.1) Establish connection to broker
 creds_broker = pika.PlainCredentials("alert_user", "alertme")
 conn_params = pika.ConnectionParameters("localhost",
                                         virtual_host = "/",
@@ -32,7 +32,7 @@ conn_broker = pika.BlockingConnection(conn_params)
 
 channel = conn_broker.channel()
 
-#(asp.2) Publish alert message to broker
+#/(asp.2) Publish alert message to broker
 msg = json.dumps(args.message)
 msg_props = pika.BasicProperties()
 msg_props.content_type = "application/json"
