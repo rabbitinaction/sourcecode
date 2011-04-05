@@ -46,16 +46,16 @@ def rate_limit_notify(channel, method, header, body):
     
     EMAIL_RECIPS = ["api.team@ourcompany.com",]
     
-    # Decode our message from JSON
+    #/(asc.9) Decode our message from JSON
     message = json.loads(body)
     
-    # Transmit e-mail to SMTP server
+    #(asc.10) Transmit e-mail to SMTP server
     send_mail(EMAIL_RECIPS, "RATE LIMIT ALERT!", message)
     
     print ("Sent alert via e-mail! Alert Text: %s  " + \
            "Recipients: %s") % (str(message), str(EMAIL_RECIPS))
     
-    # Acknowledge the message
+    #/(asc.11) Acknowledge the message
     channel.basic_ack(delivery_tag=method.delivery_tag)
 
 
