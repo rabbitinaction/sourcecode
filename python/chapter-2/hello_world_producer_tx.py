@@ -1,8 +1,9 @@
 ###############################################
 # RabbitMQ in Action
 # Chapter 1 - Hello World Producer
+#             w/ Transactions
 # 
-# Requires: pika >= 0.5
+# Requires: pika >= 0.9.5
 # 
 # Author: Jason J. W. Williams
 # (C)2011
