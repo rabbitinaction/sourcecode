@@ -53,3 +53,8 @@ _Running the Client:_ __python 3.3.3\_rpc\_server.py__
 To run the PHP scripts simply do:
 
 		php script_name.php
+
+
+## Note to contributors ##
+
+**BY CONTRIBUTING TO THE RABBITMQ IN ACTION SOURCE CODE REPOSITORY YOU AGREE TO LICENSE YOUR CONTRIBUTION UNDER THE TERMS OF THE BSD LICENSE AS SPECIFIED IN THE 'LICENSE.md' FILE IN THIS DIRECTORY.**
