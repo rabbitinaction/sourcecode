@@ -71,7 +71,7 @@ To run examples do
 
 and so on. Or, if you use Bundler
 
-    bundle exec chapter-1/hello_world_consumer.rb
+    bundle exec ruby chapter-1/hello_world_consumer.rb
 
 ## Note to contributors ##
 
