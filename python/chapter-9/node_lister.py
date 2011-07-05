@@ -11,7 +11,7 @@ import sys, json, httplib, base64
 
 #/(uvm.1) Assign arguments
 if len(sys.argv) < 4:
-    print "USAGE: user_vhost_manager.py server_name auth_user auth_pass"
+    print "USAGE: node_lister.py server_name auth_user auth_pass"
     sys.exit(1)
 
 server, port = sys.argv[1].split(":")

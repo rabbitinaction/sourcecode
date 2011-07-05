@@ -10,7 +10,7 @@ import sys, json, httplib, urllib, base64
 
 #/(uvm.1) Assign arguments
 if len(sys.argv) < 6:
-    print "USAGE: user_vhost_manager.py server_name auth_user auth_pass VHOST QUEUE_NAME"
+    print "USAGE: queue_stats.py server_name auth_user auth_pass VHOST QUEUE_NAME"
     sys.exit(1)
 
 server, port = sys.argv[1].split(":")
