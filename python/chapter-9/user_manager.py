@@ -16,7 +16,7 @@ import sys, json, httplib, base64
 
 base_path = "/api/users"
 
-#/(uvm.1) Assign arguments
+#/(um.1) Assign arguments
 if len(sys.argv) < 5:
     print "USAGE: user_vhost_manager.py server_name:port auth_user auth_pass",
     print "ACTION RESOURCE [PARAMS...]"
@@ -32,10 +32,10 @@ if len(sys.argv) > 5:
 else:
     res_params = []
 
-#/(uvm.2) Connect to server
+#/(um.2) Connect to server
 conn = httplib.HTTPConnection(server, port)
 
-#/(uvm.3) Build API path
+#/(um.3) Build API path
 if action == "list":
     path = base_path
     method = "GET"
@@ -50,14 +50,14 @@ if action == "show":
     method = "GET"
 
 
-#/(uvm.4) Build JSON arguments
+#/(um.4) Build JSON arguments
 json_args = ""
 if action == "create":
     json_args = {"password" : res_params[1],
                  "administrator" : json.loads(res_params[2])}
     json_args = json.dumps(json_args)
 
-#/(uvm.5) Issue API request
+#/(um.5) Issue API request
 credentials = base64.b64encode("%s:%s" % (username, password))
 conn.request(method, path, json_args,
              {"Content-Type" : "application/json",
@@ -68,12 +68,12 @@ if response.status > 299:
                                                  response.read())
     sys.exit(2)
 
-#/(uvm.6) Parse and display response
+#/(um.6) Parse and display response
 resp_payload = response.read()
 if action in ["list", "show"]:
     resp_payload = json.loads(resp_payload)
     
-    #/(uvm.7) Process 'list' results
+    #/(um.7) Process 'list' results
     if action == "list":
         print "Count: %d" % len(resp_payload)
         for user in resp_payload:
@@ -81,7 +81,7 @@ if action in ["list", "show"]:
             print "\tPassword: %(password_hash)s" % user
             print "\tAdministrator: %(administrator)s\n" % user
     
-    #/(uvm.8) Process 'show' results
+    #/(um.8) Process 'show' results
     if action == "show":
         print "User: %(name)s" % resp_payload
         print "\tPassword: %(password_hash)s" % resp_payload

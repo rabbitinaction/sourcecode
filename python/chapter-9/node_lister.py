@@ -9,7 +9,7 @@
 ###############################################
 import sys, json, httplib, base64
 
-#/(uvm.1) Assign arguments
+#/(nl.1) Assign arguments
 if len(sys.argv) < 4:
     print "USAGE: node_lister.py server_name:port auth_user auth_pass"
     sys.exit(1)
@@ -18,14 +18,14 @@ server, port = sys.argv[1].split(":")
 username = sys.argv[2]
 password = sys.argv[3]
 
-#/(uvm.2) Connect to server
+#/(nl.2) Connect to server
 conn = httplib.HTTPConnection(server, port)
 
-#/(uvm.3) Build API path
+#/(nl.3) Build API path
 path = "/api/nodes"
 method = "GET"
 
-#/(uvm.4) Issue API request
+#/(nl.4) Issue API request
 credentials = base64.b64encode("%s:%s" % (username, password))
 conn.request(method, path, "",
              {"Content-Type" : "application/json",
@@ -36,7 +36,7 @@ if response.status > 299:
                                                  response.read())
     sys.exit(2)
 
-#/(uvm.6) Parse and display node list
+#/(nl.6) Parse and display node list
 resp_payload = json.loads(response.read())
 for node in resp_payload:
     print "Node '%(name)s'" % node
