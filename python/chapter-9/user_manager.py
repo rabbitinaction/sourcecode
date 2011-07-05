@@ -18,7 +18,7 @@ base_path = "/api/users"
 
 #/(uvm.1) Assign arguments
 if len(sys.argv) < 5:
-    print "USAGE: user_vhost_manager.py server_name auth_user auth_pass",
+    print "USAGE: user_vhost_manager.py server_name:port auth_user auth_pass",
     print "ACTION RESOURCE [PARAMS...]"
     sys.exit(1)
 
