@@ -3,9 +3,6 @@
 # Chapter 9 - RMQ Queue Statistics
 ###############################################
 # 
-#   USAGE: 
-#       # user_vhost_manager.py "host" "auth_user" "auth_pass"
-# 
 # Author: Jason J. W. Williams
 # (C)2011
 ###############################################
