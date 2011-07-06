@@ -14,12 +14,10 @@
 ###############################################
 import sys, json, httplib, base64
 
-base_path = "/api/users"
-
 #/(um.1) Assign arguments
 if len(sys.argv) < 5:
-    print "USAGE: user_vhost_manager.py server_name:port auth_user auth_pass",
-    print "ACTION RESOURCE [PARAMS...]"
+    print "USAGE: user_manager.py server_name:port auth_user auth_pass",
+    print "ACTION [PARAMS...]"
     sys.exit(1)
 
 server, port = sys.argv[1].split(":")
@@ -32,10 +30,9 @@ if len(sys.argv) > 5:
 else:
     res_params = []
 
-#/(um.2) Connect to server
-conn = httplib.HTTPConnection(server, port)
+#/(um.2) Build API path
+base_path = "/api/users"
 
-#/(um.3) Build API path
 if action == "list":
     path = base_path
     method = "GET"
@@ -50,14 +47,15 @@ if action == "show":
     method = "GET"
 
 
-#/(um.4) Build JSON arguments
+#/(um.3) Build JSON arguments
 json_args = ""
 if action == "create":
     json_args = {"password" : res_params[1],
                  "administrator" : json.loads(res_params[2])}
     json_args = json.dumps(json_args)
 
-#/(um.5) Issue API request
+#/(um.4) Issue API request
+conn = httplib.HTTPConnection(server, port)
 credentials = base64.b64encode("%s:%s" % (username, password))
 conn.request(method, path, json_args,
              {"Content-Type" : "application/json",
@@ -68,12 +66,12 @@ if response.status > 299:
                                                  response.read())
     sys.exit(2)
 
-#/(um.6) Parse and display response
+#/(um.5) Parse and display response
 resp_payload = response.read()
 if action in ["list", "show"]:
     resp_payload = json.loads(resp_payload)
     
-    #/(um.7) Process 'list' results
+    #/(um.6) Process 'list' results
     if action == "list":
         print "Count: %d" % len(resp_payload)
         for user in resp_payload:
@@ -81,11 +79,12 @@ if action in ["list", "show"]:
             print "\tPassword: %(password_hash)s" % user
             print "\tAdministrator: %(administrator)s\n" % user
     
-    #/(um.8) Process 'show' results
+    #/(um.7) Process 'show' results
     if action == "show":
         print "User: %(name)s" % resp_payload
         print "\tPassword: %(password_hash)s" % resp_payload
         print "\tAdministrator: %(administrator)s\n" % resp_payload
+#/(um.8) Create and delete requests have no result.
 else:
     print "Completed request!"
 
