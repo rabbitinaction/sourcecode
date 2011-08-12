@@ -7,7 +7,7 @@
 # Author: Jason J. W. Williams
 # (C)2011
 ###############################################
-import sys, pika, socket
+import sys, pika
 
 #(nc.0) Nagios status codes
 EXIT_OK = 0
@@ -29,7 +29,7 @@ conn_params = pika.ConnectionParameters(server,
 try:
     conn_broker = pika.BlockingConnection(conn_params)
     channel = conn_broker.channel()
-except socket.timeout:
+except Exception:
 #/(nc.3) Connection failed, return CRITICAL status
     print "CRITICAL: Could not connect to %s:%s!" % (server, port)
     exit(EXIT_CRITICAL)
