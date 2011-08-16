@@ -50,6 +50,5 @@ if response.status > 299:
     exit(EXIT_CRITICAL)
 
 #/(apic.7) RabbitMQ alive, return OK status
-resp_payload = json.loads(response.read())
-
-print repr(resp_payload)
+print "OK: Broker alive: %s" % response.read()
+exit(EXIT_OK)
