@@ -46,7 +46,7 @@ if response.method.message_count >= max_critical:
           (queue_name, response.method.message_count)
     exit(EXIT_CRITICAL)
 
-#(aqcc.5) Message count is above critical limit
+#(aqcc.5) Message count is above warning limit
 if response.method.message_count >= max_warn:
     print "WARN: Queue %s message count: %d" % \
           (queue_name, response.method.message_count)
