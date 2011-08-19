@@ -54,7 +54,7 @@ response = json.loads(response.read())
 
 #/(chc.8) Cluster is missing nodes, return warning status
 for node in response:
-    if node["name"] in node_list:
+    if node["name"] in node_list and node["running"] != False:
         node_list.remove(node["name"])
 
 if len(node_list):
