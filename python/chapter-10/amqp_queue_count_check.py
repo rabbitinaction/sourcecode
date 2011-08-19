@@ -37,8 +37,12 @@ except socket.timeout:
     print "Unknown: Could not connect to %s:%s!" % (server, port)
     exit(EXIT_UNKNOWN)
 
-response = channel.queue_declare(queue=queue_name,
-                                 passive=True)
+try:
+    response = channel.queue_declare(queue=queue_name,
+                                     passive=True)
+except pika.exceptions.AMQPChannelError:
+    print "CRITICAL: Queue %s does not exist." % queue_name
+    exit(EXIT_CRITICAL)
 
 #(aqcc.4) Message count is above critical limit
 if response.method.message_count >= max_critical:
