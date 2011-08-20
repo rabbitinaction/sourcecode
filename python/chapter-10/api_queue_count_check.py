@@ -56,13 +56,13 @@ if response.status > 299:
     print "UNKNOWN: Unexpected API error: %s" % response.read()
     exit(EXIT_UNKNOWN)
 
-#/(aqcc.7) RabbitMQ alive, return OK status
+#/(aqcc.7) Extract message count levels from response
 resp_payload = json.loads(response.read())
 msg_cnt_unack = resp_payload["messages_unacknowledged"]
 msg_cnt_ready = resp_payload["messages_ready"]
 msg_cnt_total = resp_payload["messages"]
 
-#/(aqcc.8) Consumed but unackowledged message count above limit
+#/(aqcc.8) Consumed but unackowledged message count above thresholds
 if msg_cnt_unack >= max_unack_critical:
     print "CRITICAL: %s - %d unack'd messages." % (queue_name,
                                                    msg_cnt_unack)
@@ -72,7 +72,7 @@ elif msg_cnt_unack >= max_unack_warn:
                                                msg_cnt_unack)
     exit(EXIT_WARNING)
 
-#/(aqcc.9) Ready to be consumed message count about limit
+#/(aqcc.9) Ready to be consumed message count above thresholds
 if msg_cnt_ready >= max_ready_critical:
     print "CRITICAL: %s - %d unconsumed messages." % (queue_name,
                                                       msg_cnt_ready)
@@ -82,7 +82,7 @@ elif msg_cnt_ready >= max_ready_warn:
                                                   msg_cnt_ready)
     exit(EXIT_WARNING)
 
-
+# Message counts below thresholds, return OK status
 print "OK: %s - %d in-flight messages. %dB used memory." % \
       (queue_name, msg_cnt_total, resp_payload["memory"])
 exit(EXIT_OK)
