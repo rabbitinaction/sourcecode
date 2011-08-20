@@ -82,7 +82,7 @@ elif msg_cnt_ready >= max_ready_warn:
                                                   msg_cnt_ready)
     exit(EXIT_WARNING)
 
-# Message counts below thresholds, return OK status
+#/(aqcc.10) Message counts below thresholds, return OK status
 print "OK: %s - %d in-flight messages. %dB used memory." % \
       (queue_name, msg_cnt_total, resp_payload["memory"])
 exit(EXIT_OK)
