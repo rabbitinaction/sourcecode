@@ -62,7 +62,7 @@ msg_cnt_unack = resp_payload["messages_unacknowledged"]
 msg_cnt_ready = resp_payload["messages_ready"]
 msg_cnt_total = resp_payload["messages"]
 
-#/(aqcc.8) Consumed but unackowledged message count above thresholds
+#/(aqcc.8) Consumed but unacknowledged message count above thresholds
 if msg_cnt_unack >= max_unack_critical:
     print "CRITICAL: %s - %d unack'd messages." % (queue_name,
                                                    msg_cnt_unack)
