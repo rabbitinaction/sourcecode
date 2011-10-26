@@ -3,7 +3,7 @@
              ]},
     {rabbit, [{vm_memory_high_watermark, 0.4}
              ]},
-    {rabbit_shovel,
+    {rabbitmq_shovel,
        [{shovels,
          [{avocado_order_shovel,
            [{sources,      [{broker, "amqp://guest:guest@localhost:5675/"},
