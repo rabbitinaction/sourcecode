@@ -1,4 +1,12 @@
 <?php
+###############################################
+# RabbitMQ in Action
+#
+# Requires: php-amqplib
+#
+# Author: Alvaro Videla
+# (C) 2011
+###############################################
 
 require_once(__DIR__ . '/../amqp.inc');
 
