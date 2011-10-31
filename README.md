@@ -6,7 +6,7 @@
 ### Python Examples ###
 
 * Python 2.6 or newer
-* [Pika](https://github.com/tonyg/pika)
+* [Pika](https://github.com/pika/pika)
 
 ### PHP Examples ###
 * The examples where tested with PHP 5.3
@@ -22,7 +22,7 @@
 
 _Requirements:_
 
-* RabbitMQ server (2.0 or later) running on localhost.
+* RabbitMQ server (2.6.1 or later) running on localhost.
 * RabbitMQ user needed:
 	* Username: alert\_user
 	* Password: alertme
@@ -37,7 +37,7 @@ _Running the Producer:_ __python 3.2.2\_alert\_producer.py -r ROUTING\_KEY -m ME
 
 _Requirements:_
 
-* RabbitMQ server (2.0 or later) running on localhost.
+* RabbitMQ server (2.6.1 or later) running on localhost.
 * RabbitMQ user needed:
 	* Username: rpc\_user
 	* Password: rpcme
@@ -49,7 +49,7 @@ _Running the Client:_ __python 3.3.3\_rpc\_server.py__
 
 ## Running the Examples: PHP ##
 
-* RabbitMQ server (2.0 or later) running on localhost.
+* RabbitMQ server (2.6.1 or later) running on localhost.
 * RabbitMQ user needed:
 	* Username: guest
 	* Password: guest
@@ -60,7 +60,7 @@ To run the PHP scripts simply do:
 
 ## Running the Examples: Ruby ##
 
-* RabbitMQ server (2.0 or later) running on localhost.
+* RabbitMQ server (2.6.1 or later) running on localhost.
 * RabbitMQ user needed:
 	* Username: guest
 	* Password: guest
