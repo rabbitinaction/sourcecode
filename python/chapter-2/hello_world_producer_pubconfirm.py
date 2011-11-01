@@ -15,36 +15,36 @@ from pika import spec
 credentials = pika.PlainCredentials("guest", "guest")
 conn_params = pika.ConnectionParameters("localhost",
                                         credentials = credentials)
-conn_broker = pika.BlockingConnection(conn_params) #/(hwppc.1) Establish connection to broker
+conn_broker = pika.BlockingConnection(conn_params) 
 
+channel = conn_broker.channel()
 
-channel = conn_broker.channel() #/(hwppc.2) Obtain channel
-
-def confirm_handler(frame): #/(hwppc.3) Publisher confirm handler
+def confirm_handler(frame): #/(hwppc.1) Publisher confirm handler
     if type(frame.method) == spec.Confirm.SelectOk:
         print "Channel in 'confirm' mode."
     elif type(frame.method) == spec.Basic.Nack:
-        print "Nack received."
+        if frame.method.delivery_tag in msg_ids:
+            print "Message lost!"
     elif type(frame.method) == spec.Basic.Ack:
-        if frame.method.delivery_tag == msg_id_no:
+        if frame.method.delivery_tag in msg_ids:
             print "Confirm received!"
+            msg_ids.remove(frame.method.delivery_tag)
 
-
-#/(hwppc.4) Put channel in "confirm" mode
+#/(hwppc.2) Put channel in "confirm" mode
 channel.confirm_delivery(callback=confirm_handler)
 
 msg = sys.argv[1]
 msg_props = pika.BasicProperties()
-msg_props.content_type = "text/plain" #/(hwppc.5) Create a plaintext message
+msg_props.content_type = "text/plain"
 
-msg_id_no = 0 #/(hwppc.6) Reset publisher confirm start ID
+msg_ids = [] #/(hwppc.3) Reset message ID tracker
 
 channel.basic_publish(body=msg,
                       exchange="hello-exchange",
                       properties=msg_props,
-                      routing_key="hola") #/(hwppc.7) Publish the message
+                      routing_key="hola") #/(hwppc.4) Publish the message
 
-msg_id_no = msg_id_no + 1 #/(hwppc.8) Increment published message ID
+msg_ids.append(len(msg_ids) + 1) #/(hwppc.5) Add ID to tracking list
 
 channel.close()
 
