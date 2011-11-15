@@ -48,11 +48,8 @@ namespace HelloWorld {
                               false,
                               null);
             
-            
-            
             ///(hwcdn.5) Bind the queue and exchange together on the key "hola"
             chan.QueueBind("hello-queue", "hello-exchange", "hola");
-            
             
             ///(hwcdn.6) Subscribe our consumer
             QueueingBasicConsumer consumer = new QueueingBasicConsumer(chan);
