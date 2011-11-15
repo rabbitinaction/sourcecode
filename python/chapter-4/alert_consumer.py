@@ -1,6 +1,6 @@
 ###############################################
 # RabbitMQ in Action
-# Chapter 3.2.2 - Alerting Server Consumer
+# Chapter 4.2.2 - Alerting Server Consumer
 # 
 # Requires: pika >= 0.9.5
 # 

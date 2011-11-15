@@ -1,6 +1,6 @@
 ###############################################
 # RabbitMQ in Action
-# Chapter 3.3.3 - RPC Server
+# Chapter 4.3.3 - RPC Server
 # 
 # Requires: pika >= 0.9.5
 # 
