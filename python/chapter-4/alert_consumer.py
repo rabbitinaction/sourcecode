@@ -49,7 +49,7 @@ def rate_limit_notify(channel, method, header, body):
     #/(asc.9) Decode our message from JSON
     message = json.loads(body)
     
-    #(asc.10) Transmit e-mail to SMTP server
+    #/(asc.10) Transmit e-mail to SMTP server
     send_mail(EMAIL_RECIPS, "RATE LIMIT ALERT!", message)
     
     print ("Sent alert via e-mail! Alert Text: %s  " + \
