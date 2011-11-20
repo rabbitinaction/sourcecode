@@ -3,7 +3,9 @@
 # Appendix A- Alerting Server Consumer (.NET)
 # 
 # Requires: 
-# 
+#       * RabbitMQ.Client >= 2.7.0
+#       * Newtonsoft.Json >= 4.0
+#
 # Author: Jason J. W. Williams
 # (C)2011
 ##############################################*/
