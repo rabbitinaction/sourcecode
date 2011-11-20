@@ -33,7 +33,7 @@ namespace AlertingServer {
             msg.Subject = subject;
             msg.Body = message;
             
-            SmtpClient smtp_server = new SmtpClient("10.1.62.6");
+            SmtpClient smtp_server = new SmtpClient("mail.ourcompany.com");
             smtp_server.Port = 25;
             smtp_server.Send(msg);
         }
@@ -41,7 +41,7 @@ namespace AlertingServer {
         private static void critical_notify(IBasicConsumer consumer,
                                             BasicDeliverEventArgs evt_args) {
             
-            string[] EMAIL_RECIPS = new string[] {"williamsjj@digitar.com"};
+            string[] EMAIL_RECIPS = new string[] {"ops.team@ourcompany.com"};
             
             IBasicProperties msg_props = evt_args.BasicProperties;
             String msg_body = Encoding.ASCII.GetString(evt_args.Body);
@@ -63,7 +63,7 @@ namespace AlertingServer {
         private static void rate_limit_notify(IBasicConsumer consumer,
                                               BasicDeliverEventArgs evt_args) {
             
-            string[] EMAIL_RECIPS = new string[] {"williamsjj@digitar.com"};
+            string[] EMAIL_RECIPS = new string[] {"api.team@ourcompany.com"};
             
             IBasicProperties msg_props = evt_args.BasicProperties;
             String msg_body = Encoding.ASCII.GetString(evt_args.Body);
