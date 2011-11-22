@@ -19,7 +19,8 @@ namespace HelloWorld {
     class Producer {
         
         public static void Main(string[] args) {
-
+            
+            //#/(hwpdn.0) Collect server and message
             if(args.Length < 2) {
                 Console.WriteLine("Must supply hostname and " +
                                   "message text.");
