@@ -45,7 +45,7 @@ namespace HelloWorld {
                                  null);
             
             //#/(hwpdn.4) Create a plaintext message
-            var msg_body = args[1];
+            string msg_body = args[1];
             IBasicProperties msg_props = chan.CreateBasicProperties();
             msg_props.ContentType = "text/plain";
             
