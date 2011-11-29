@@ -35,11 +35,11 @@ namespace AlertingServer {
             conn_factory.UserName = "alert_user";
             conn_factory.Password = "alertme";
             
-            ///(aspdn.1) Establish connection to broker
+            //#/(aspdn.1) Establish connection to broker
             IConnection conn = conn_factory.CreateConnection();
-            IModel chan = conn.CreateModel(); ///(hwcdn.2) Obtain channel
+            IModel chan = conn.CreateModel(); //#/(hwcdn.2) Obtain channel
             
-            ///(aspdn.2) Publish alert message to broker
+            //#/(aspdn.2) Publish alert message to broker
             string msg = JsonConvert.SerializeObject(args[2]);
             IBasicProperties msg_props = chan.CreateBasicProperties();
             msg_props.ContentType = "application/json";

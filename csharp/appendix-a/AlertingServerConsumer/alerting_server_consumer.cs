@@ -41,47 +41,55 @@ namespace AlertingServer {
         }
         
         private static void critical_notify(IBasicConsumer consumer,
-                                            BasicDeliverEventArgs evt_args) {
+                                            BasicDeliverEventArgs eargs) {
             
             string[] EMAIL_RECIPS = new string[] {"ops.team@ourcompany.com"};
             
-            IBasicProperties msg_props = evt_args.BasicProperties;
-            String msg_body = Encoding.ASCII.GetString(evt_args.Body);
+            IBasicProperties msg_props = eargs.BasicProperties;
+            String msg_body = Encoding.ASCII.GetString(eargs.Body);
             
-            ///(ascdn.6) Decode our message from JSON    
-            msg_body = JsonConvert.DeserializeObject<string>(msg_body);
+            //#/(ascdn.1) Decode our message from JSON    
+            msg_body = JsonConvert.DeserializeObject
+                                   <string>(msg_body);
             
-            ///(ascdn.7) Transmit e-mail to SMTP server
-            send_mail(EMAIL_RECIPS, "CRITICAL ALERT", msg_body);
+            //#/(ascdn.2) Transmit e-mail to SMTP server
+            send_mail(EMAIL_RECIPS,
+                      "CRITICAL ALERT",
+                      msg_body);
             
             Console.WriteLine("Sent alert via e-mail! Alert Text: " +
                               msg_body + " Recipients: " +
                               string.Join(",", EMAIL_RECIPS));
             
-            ///(ascdn.8) Acknowledge the message
-            consumer.Model.BasicAck(evt_args.DeliveryTag, false);
+            //#/(ascdn.3) Acknowledge the message
+            consumer.Model.BasicAck(eargs.DeliveryTag,
+                                    false);
         }
         
         private static void rate_limit_notify(IBasicConsumer consumer,
-                                              BasicDeliverEventArgs evt_args) {
+                                              BasicDeliverEventArgs eargs) {
             
             string[] EMAIL_RECIPS = new string[] {"api.team@ourcompany.com"};
             
-            IBasicProperties msg_props = evt_args.BasicProperties;
-            String msg_body = Encoding.ASCII.GetString(evt_args.Body);
+            IBasicProperties msg_props = eargs.BasicProperties;
+            String msg_body = Encoding.ASCII.GetString(eargs.Body);
             
-            ///(ascdn.9) Decode our message from JSON
-            msg_body = JsonConvert.DeserializeObject<string>(msg_body);
+            //#/(ascdn.4) Decode our message from JSON
+            msg_body = JsonConvert.DeserializeObject
+                                   <string>(msg_body);
             
-            ///(ascdn.10) Transmit e-mail to SMTP server
-            send_mail(EMAIL_RECIPS, "RATE LIMIT ALERT!", msg_body);
+            //#/(ascdn.5) Transmit e-mail to SMTP server
+            send_mail(EMAIL_RECIPS,
+                      "RATE LIMIT ALERT!",
+                      msg_body);
             
             Console.WriteLine("Sent alert via e-mail! Alert Text: " +
                               msg_body + " Recipients: " +
                               string.Join(",", EMAIL_RECIPS));
             
-            ///(ascdn.11) Acknowledge the message
-            consumer.Model.BasicAck(evt_args.DeliveryTag, false);
+            //#/(ascdn.6) Acknowledge the message
+            consumer.Model.BasicAck(eargs.DeliveryTag,
+                                    false);
         }
         
         public static void Main(string[] args) {
@@ -96,18 +104,15 @@ namespace AlertingServer {
             conn_factory.UserName = "alert_user";
             conn_factory.Password = "alertme";
             
-            ///(ascdn.1) Establish connection to broker
             IConnection conn = conn_factory.CreateConnection();
-            IModel chan = conn.CreateModel(); ///(hwcdn.2) Obtain channel
+            IModel chan = conn.CreateModel();
             
-            ///(ascdn.2) Declare the Exchange
             chan.ExchangeDeclare("alerts",
                                  ExchangeType.Topic,
                                  true,
                                  false,
                                  null);
             
-            //(ascdn.3) Build the queues and bindings for our topics 
             chan.QueueDeclare("critical", 
                               false,
                               false,
@@ -124,7 +129,7 @@ namespace AlertingServer {
             
             chan.QueueBind("rate_limit", "alerts", "*.rate_limit");
             
-            //(ascdn.4) Make our alert processors
+            //#/(ascdn.7) Make our alert processors
             EventingBasicConsumer
                 c_consumer = new EventingBasicConsumer {Model = chan};
             c_consumer.Received += critical_notify;
