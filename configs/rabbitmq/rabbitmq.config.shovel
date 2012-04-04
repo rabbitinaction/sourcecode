@@ -35,8 +35,7 @@
                                      {routing_key, <<"warehouse">>}]}
                                ]}]},
             {queue, <<"backup_orders">>},
-            {auto_ack, false},
-            {tx_size, 0},
+            {ack_mode, on_confirm},
             {publish_properties, [{delivery_mode, 2}]},
             {publish_fields, [{exchange, <<"incoming_orders">>},
                               {routing_key, <<"warehouse">>}]},
